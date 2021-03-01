@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d15a6679fb8330ed235ff96299a96bedad3d2964afaae466d47c2b3ec16084a1
+-- hash: 6f9f1aa290956b571fe3e3d51d1a95d7c6df4a135197522c4cb32356a98856f5
 
 name:           haskell-school-of-music
 version:        0.1.0.0
@@ -27,7 +27,11 @@ source-repository head
 
 library
   exposed-modules:
+      HigherOrderFunctions
       Lib
+      MusicalInterlude
+      PreliminaryDefinitions
+      SimpleMusic
   other-modules:
       Paths_haskell_school_of_music
   hs-source-dirs:

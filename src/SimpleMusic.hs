@@ -1,6 +1,3 @@
--- module Euterpea.Music.Note.Music where
---     infixr 5:+:,:=:
-
 -- type synonyms
 
 type Octave = Int
@@ -67,9 +64,8 @@ data Control =
     | Transpose AbsPitch        -- transposition
     | Instrument InstrumentName -- instrument label
     | Phrase [PhraseAttribute]  -- phrase attributes
-    | Player PlayerName         -- player label
-
-type PlayerName = String
+    | KeySig PitchClass Mode    -- key signature and mode
+    | Custom String             -- custom label
 
 -- convenient auxiliary functions
 
@@ -91,8 +87,8 @@ instrument i m = Modify (Instrument i) m
 phrase :: [PhraseAttribute] -> Music a -> Music a
 phrase as m = Modify (Phrase as) m
 
-player :: PlayerName -> Music a -> Music a
-player n m = Modify (PlayerName n) m
+keysig :: PitchClass -> Mode -> Music a -> Music a
+keysig pc mo m = Modify (KeySig pc mo) m
 
 data InstrumentName =
     AcousticGrandPiano | BrightAcousticPiano | ElectricGrandPiano
@@ -138,7 +134,7 @@ data InstrumentName =
     | GuitarFretNoise | BreathNoise | Seashore
     | BirdTweet | TelephoneRing | Helicopter
     | Applause | Gunshot | Percussion
-    | Custom String
+    | CustomInstrument String
 
 cff , cf , c, cs, css, dff , df , d, ds, dss, eff , ef , e, es, ess, fff , ff , f ,
     fs, fss, gff , gf , g, gs, gss, aff , af , a, as, ass, bff , bf , b, bs, bss ::
@@ -193,6 +189,8 @@ t251 =
         cMajor = c 4 wn :=: e 4 wn :=: g 4 wn
     in dMinor :+: gMajor :+: cMajor
 
+play t251 -- can play at ghci command line after importing Euterpea
+
 -----------------
 
 type AbsPitch = Int
@@ -201,26 +199,19 @@ absPitch :: Pitch -> AbsPitch
 absPitch (p, oct) = 12 * oct + pcToInt p
 
 pcToInt :: PitchClass -> Int
-pcToInt Cff = -2; pcToInt Dff = 0; pcToInt Eff = 2
-pcToInt Cf = -1; pcToInt Df = 1; pcToInt Ef = 3
-pcToInt C = 0; pcToInt D = 2; pcToInt E = 4
-pcToInt Cs = 1; pcToInt Ds = 3; pcToInt Es = 5
-pcToInt Css = 2; pcToInt Dss = 4; pcToInt Ess = 6
-pcToInt Fff = 3; pcToInt Gff = 5; pcToInt Aff = 7
-pcToInt Ff = 4; pcToInt Gf = 6; pcToInt Af = 8
-pcToInt F = 5; pcToInt G = 7; pcToInt A = 9
-pcToInt Fs = 6; pcToInt Gs = 8; pcToInt As = 10
-pcToInt Fss = 7; pcToInt Gss = 9; pcToInt Ass = 11
-pcToInt Bff = 9
-pcToInt Bf = 10
-pcToInt B = 11
-pcToInt Bs = 12
-pcToInt Bss = 13
+pcToInt pc = case pc of
+    Cff -> -2; Cf -> -1; C -> 0; Cs -> 1; Css -> 2;
+    Dff -> 0; Df -> 1; D -> 2; Ds -> 3; Dss -> 4;
+    Eff -> 2; Ef -> 3; E -> 4; Es -> 5; Ess -> 6;
+    Fff -> 3; Ff -> 4; F -> 5; Fs -> 6; Fss -> 7;
+    Gff -> 5; Gf -> 6; G -> 7; Gs -> 8; Gss -> 9;
+    Aff -> 7; Af -> 8; A -> 9; As -> 10; Ass -> 11;
+    Bff -> 9; Bf -> 10; B -> 11; Bs -> 12; Bss -> 13
 
 pitch :: AbsPitch -> Pitch
 pitch ap =
     let (oct, n) = divMod ap 12
-    in ([C, Cs,D, Ds,E, F, Fs,G, Gs,A, As,B ] !! n, oct)
+    in ([C, Cs,D, Ds,E, F, Fs,G, Gs,A, As,B ] !! n, oct - 1)
 
 trans :: Int -> Pitch -> Pitch
 trans i p = pitch (absPitch p + i)
@@ -236,3 +227,27 @@ twoFiveOne p d =
 twoFiveOne (D, 4) wn = t251
 
 --------------
+
+-- exercise 2.2 COMPLETE EXERCISE
+
+data BluesPitchClass =
+    Ro | MT | Fo | Fi | MS
+
+type BluesPitch = Pitch
+
+ro, mt, fo, fi, ms :: Octave -> Dur -> PitchClass -> Music BluesPitch
+ro o d = note d (Ro, o)
+mt o d = note d (MT, o)
+fo o d = note d (Fo, o)
+fi o d = note d (Fi, o)
+ms o d = note d (MS, o)
+
+-- fromBlues :: Music BluesPitch -> Music Pitch
+-- fromBlues mb = case mb of
+--     Prim (Note d bp) -> Prim (Note d p)
+--     Prim (Rest d) -> Prim (Rest d)
+--     (m1 :+: m2) -> m1 :+: m2
+--     (m1 :=: m2) -> m1 :=: m2
+--     Modify Control mb -> Modify Control mb
+
+---------------

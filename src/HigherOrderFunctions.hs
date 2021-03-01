@@ -1,56 +1,3 @@
-type Octave = Int
-
-type Pitch = (PitchClass, Octave)
-
-type Dur = Rational
-
-data PitchClass = 
-    Cff | Cf | C | Dff | Cs | Df | Css | D | Eff | Ds
-    | Ef | Fff | Dss | E | Es | Ff | F | Gff | Ess | Fs
-    | Gf | Fss | G | Aff | Gs | Af | Gss | A | Bff | As
-    | Bf | Ass | B | Bs | Bss
-
-data Primitive a =
-    Note Dur a
-    | Rest Dur
-
-type Music a = Primitive a
-
-note :: Dur -> a -> Music a
-note = Note
-
-rest :: Dur -> Music a
-rest = Rest
-
-qn = 1/4; qnr = rest qn
-
-type AbsPitch = Int
-
-absPitch :: Pitch -> AbsPitch
-absPitch (p, oct) = 12 * oct + pcToInt p
-
-pitch :: AbsPitch -> Pitch
-pitch ap =
-    let (oct, n) = divMod ap 12
-    in ([C, Cs,D, Ds,E, F, Fs,G, Gs,A, As,B ] !! n, oct)
-
-pcToInt :: PitchClass -> Int
-pcToInt Cff = -2; pcToInt Dff = 0; pcToInt Eff = 2
-pcToInt Cf = -1; pcToInt Df = 1; pcToInt Ef = 3
-pcToInt C = 0; pcToInt D = 2; pcToInt E = 4
-pcToInt Cs = 1; pcToInt Ds = 3; pcToInt Es = 5
-pcToInt Css = 2; pcToInt Dss = 4; pcToInt Ess = 6
-pcToInt Fff = 3; pcToInt Gff = 5; pcToInt Aff = 7
-pcToInt Ff = 4; pcToInt Gf = 6; pcToInt Af = 8
-pcToInt F = 5; pcToInt G = 7; pcToInt A = 9
-pcToInt Fs = 6; pcToInt Gs = 8; pcToInt As = 10
-pcToInt Fss = 7; pcToInt Gss = 9; pcToInt Ass = 11
-pcToInt Bff = 9
-pcToInt Bf = 10
-pcToInt B = 11
-pcToInt Bs = 12
-pcToInt Bss = 13
-
 -- rewriting some of the previosuly defined functions when given lists
 
 -- map :: (a -> b) -> [a] -> [b]
@@ -71,6 +18,21 @@ wts p =
     in map f [0, 2, 4, 6, 8]
 
 ----------
+
+-- exercise 3.1 f3 IS NOT COM[PILING]
+
+f1 :: Int -> [Pitch] -> [Pitch]
+f1 = map trans
+
+f2 :: [Dur] -> [Music a]
+f2 = map rest
+
+f3 :: [Music Pitch] -> [Music Pitch]
+f3 ms =
+    let f note p d = (note d/2 p) :+: (rest d/2)
+    in map f ms
+
+---------------
 
 -- (++) :: [a] -> [a] -> [a]
 -- [] ++ ys = ys
@@ -176,7 +138,7 @@ foldr1err f [] = error "Prelude.foldr1: empty list"
 
 -- exercise 3.6
 
-lnegth :: [a] -> Int
+length :: [a] -> Int
 length [] = 0
 length (_ : xs) = 1 + length xs
 length xs = 
@@ -185,7 +147,7 @@ length xs =
 
 --------------
 
--- exercise 3.1
+-- exercise 3.2
 
 flip :: (a → b → c) → (b → a → c)
 flip f x y = f y x
@@ -195,7 +157,7 @@ flip f x y = f y x
 
 ---------------
 
--- exercise 3.2
+-- exercise 3.3
 
 xs = [1,2,3] :: [Integer]
 -- ((+) x) y = x + y      only one value x is passed to binary operator (+),
@@ -206,7 +168,7 @@ ys = map (+) xs
 
 ---------------
 
--- exercise 3.3
+-- exercise 3.4
 
 applyEach :: [a -> b] -> a -> [b]
 applyEach [] v = []
@@ -214,7 +176,7 @@ applyEach (f : fs) v = f v : applyEach fs v
 
 ---------------
 
--- exercise 3.4 DOES NOT COMPILE
+-- exercise 3.5 DOES NOT COMPILE
 
 applyAll :: [a -> a] -> a -> a
 -- applyAll (f : fs) v = foldl (f v) v [fs v]
@@ -223,7 +185,7 @@ applyAll (f : fs) v = f applyAll fs v
 
 ---------------
 
--- exercise 3.7
+-- exercise 3.8
 
 doubleEach :: [Int] -> [Int]
 doubleEach = map (*2)
@@ -240,7 +202,7 @@ addEachPair ((n1, n2) : ns) = (n1 + n2) : addEachPair ns
 
 --------------
 
--- exercise 3.9 DOES NOT COMPILE
+-- exercise 3.11 DOES NOT COMPILE
 
 chrom :: Pitch -> Pitch -> [Music Pitch]
 chrom p1 p2 =
